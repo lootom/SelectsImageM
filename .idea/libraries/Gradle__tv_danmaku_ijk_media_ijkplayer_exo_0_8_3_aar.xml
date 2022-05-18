@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: tv.danmaku.ijk.media:ijkplayer-exo:0.8.3@aar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/8820bf00ebf3cbe776f039236f4e03d7/ijkplayer-exo-0.8.3/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/8820bf00ebf3cbe776f039236f4e03d7/ijkplayer-exo-0.8.3/res" />
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-2/files-2.1/8820bf00ebf3cbe776f039236f4e03d7/ijkplayer-exo-0.8.3/AndroidManifest.xml" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
