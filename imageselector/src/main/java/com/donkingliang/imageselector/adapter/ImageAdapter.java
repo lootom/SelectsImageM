@@ -53,7 +53,6 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
         this.isSingle = isSingle;
         this.isViewImage = isViewImage;
     }
-
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == TYPE_IMAGE) {
