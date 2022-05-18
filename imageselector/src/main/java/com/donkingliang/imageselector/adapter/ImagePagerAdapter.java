@@ -31,7 +31,6 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 public class ImagePagerAdapter extends PagerAdapter {
-
     private Context mContext;
     //    private List<PhotoView> viewList = new ArrayList<>(4);
     List<Image> mImgList;
