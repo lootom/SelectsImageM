@@ -257,6 +257,26 @@ public class ImageSelectorActivity extends AppCompatActivity {
         checkPermissionAndLoadImages();
         hideFolderList();
         setSelectImageCount(0);
+
+        initBars();
+    }
+
+    private void initBars() {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            Window window = getWindow();
+//            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+//            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+//            window.setStatusBarColor(Color.TRANSPARENT);
+//            window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+//                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+//
+//        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+//            Window window = getWindow();
+//            window.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,  WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+//        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setNavigationBarColor(Color.parseColor("#111111"));
+        }
     }
 
     /**
@@ -425,7 +445,20 @@ public class ImageSelectorActivity extends AppCompatActivity {
         mAdapter.setOnItemClickListener(new ImageAdapter.OnItemClickListener() {
             @Override
             public void OnItemClick(Image image, int position){
-                toPreviewActivity(mAdapter.getData(), position);
+                ArrayList<Image> selectImages = mAdapter.getSelectImages();
+                boolean contains = selectImages.contains(mAdapter.getData().get(position));
+                if(contains){
+                    int position_clicks = 0;
+                    for (int i = 0; i < selectImages.size(); i++) {
+                        if(mAdapter.getData().get(position).getPath().equals(selectImages.get(i).getPath())){
+                            position_clicks = i;
+                        }
+                    }
+                    toPreviewActivity(selectImages, position_clicks,1 );
+                }else {
+                    toPreviewActivity(mAdapter.getData(), position,0);
+                }
+
             }
 
             @Override
@@ -692,10 +725,10 @@ public class ImageSelectorActivity extends AppCompatActivity {
         setResult(RESULT_OK, intent);
     }
 
-    private void toPreviewActivity(ArrayList<Image> images, int position) {
+    private void toPreviewActivity(ArrayList<Image> images, int position,int status) {
         if (images != null && !images.isEmpty()) {
             PreviewActivity.openActivity(this, images,
-                    mAdapter.getSelectImages(), isSingle, mMaxCount, position);
+                    mAdapter.getSelectImages(), isSingle, mMaxCount, position,status);
         }
     }
 

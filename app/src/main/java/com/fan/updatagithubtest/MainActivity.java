@@ -1,12 +1,16 @@
 package com.fan.updatagithubtest;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.donkingliang.imageselector.utils.ImageSelector;
+
+import java.util.ArrayList;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -49,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
                         .useCamera(false) // 设置是否使用拍照
 //                        .setCrop(true)  // 设置是否使用图片剪切功能。
 //                        .setSingle(false)  //设置是否单选
+                        .setSelected(list_images)
                         .onlyImage(false)  //只要图片（不要视频）
                         .setMaxSelectCount(9)
                         .setViewImage(true) //是否点击放大图片查看,，默认为true
@@ -58,4 +63,17 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+
+    private ArrayList<String> list_images = new ArrayList<>();
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (data != null) {
+            ArrayList<String> images = data.getStringArrayListExtra(ImageSelector.SELECT_RESULT);
+            // images 选中的图片（视频）集合
+            list_images.addAll(images);
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
 }

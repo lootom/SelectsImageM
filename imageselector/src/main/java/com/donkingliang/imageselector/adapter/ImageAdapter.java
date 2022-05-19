@@ -72,7 +72,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                     .apply(new RequestOptions().diskCacheStrategy(DiskCacheStrategy.NONE))
                     .into(holder.ivImage);
 
-            setItemSelect(holder, mSelectImages.contains(image));
+            setItemSelect(holder, mSelectImages.contains(image),image.getPath());
 
             holder.ivGif.setVisibility(image.isGif() ? View.VISIBLE : View.GONE);
 
@@ -92,7 +92,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
                 }
             }
             //点击选中/取消选中图片
-            holder.ivSelectIcon.setOnClickListener(new View.OnClickListener() {
+            holder.tvCheck2.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     checkedImage(holder, image);
@@ -136,17 +136,17 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
         if (mSelectImages.contains(image)) {
             //如果图片已经选中，就取消选中
             unSelectImage(image);
-            setItemSelect(holder, false);
+            setItemSelect(holder, false, image.getPath());
         } else if (isSingle) {
             //如果是单选，就先清空已经选中的图片，再选中当前图片
             clearImageSelect();
             selectImage(image);
-            setItemSelect(holder, true);
+            setItemSelect(holder, true, image.getPath());
         } else if (mMaxCount <= 0 || mSelectImages.size() < mMaxCount) {
             //如果不限制图片的选中数量，或者图片的选中数量
             // 还没有达到最大限制，就直接选中当前图片。
             selectImage(image);
-            setItemSelect(holder, true);
+            setItemSelect(holder, true, image.getPath());
         }
     }
 
@@ -172,6 +172,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
         if (mSelectListener != null) {
             mSelectListener.OnImageSelect(image, false, mSelectImages.size());
         }
+        notifyDataSetChanged();
     }
 
 
@@ -212,13 +213,30 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     /**
      * 设置图片选中和未选中的效果
      */
-    private void setItemSelect(ViewHolder holder, boolean isSelect) {
+    private void setItemSelect(ViewHolder holder, boolean isSelect,String imgpath) {
         if (isSelect) {
-            holder.ivSelectIcon.setImageResource(R.drawable.icon_image_select);
+//            holder.ivSelectIcon.setImageResource(R.drawable.icon_image_select);
+            notifyCheckChanged(holder,imgpath, isSelect);
             holder.ivMasking.setAlpha(0.5f);
         } else {
-            holder.ivSelectIcon.setImageResource(R.drawable.icon_image_un_select);
+            notifyCheckChanged(holder, imgpath,isSelect);
             holder.ivMasking.setAlpha(0.2f);
+        }
+    }
+
+    /**
+     * 选择按钮更新
+     */
+    private void notifyCheckChanged(ViewHolder viewHolder, String imgpath, boolean isSelect) {
+        viewHolder.tvCheck.setText("");
+        viewHolder.tvCheck.setBackgroundResource(R.drawable.rc_picture_check_normal);
+        int size = mSelectImages.size();
+        for (int i = 0; i < size; i++) {
+            String media = mSelectImages.get(i).getPath();
+            if (media.equals(imgpath)) {
+                viewHolder.tvCheck.setText(String.valueOf(i+1));
+                viewHolder.tvCheck.setBackgroundResource(R.drawable.rc_picture_check_selected_red);
+            }
         }
     }
 
@@ -277,22 +295,23 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     static class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView ivImage;
-        ImageView ivSelectIcon;
+//        ImageView ivSelectIcon;
         ImageView ivMasking;
         ImageView ivGif;
         ImageView ivVideo;
         ImageView ivCamera;
-        TextView ivDuration;
+        TextView ivDuration,tvCheck,tvCheck2;
         LinearLayout videoLl;
 
         public ViewHolder(View itemView) {
             super(itemView);
             ivImage = itemView.findViewById(R.id.iv_image);
-            ivSelectIcon = itemView.findViewById(R.id.iv_select);
             ivMasking = itemView.findViewById(R.id.iv_masking);
             ivGif = itemView.findViewById(R.id.iv_gif);
             ivVideo = itemView.findViewById(R.id.iv_video);
             ivDuration = itemView.findViewById(R.id.iv_duration);
+            tvCheck = itemView.findViewById(R.id.tvCheck);
+            tvCheck2 = itemView.findViewById(R.id.tvCheck2);
             videoLl = itemView.findViewById(R.id.video_ll);
 
             ivCamera = itemView.findViewById(R.id.iv_camera);

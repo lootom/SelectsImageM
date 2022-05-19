@@ -26,4 +26,9 @@
         <attr name="right_bottom_radius" format="dimension" />
         <attr name="left_bottom_radius" format="dimension" />
     </declare-styleable>
+
+    <!--仿微信样式，注意每一项都不能少-->
+    <style name="picture.WeChat.style" parent="Theme.AppCompat.Light.NoActionBar">
+    <item name="picture.checked.style2">@drawable/rc_picture_check_selector_red</item>
+    </style>
 </resources>

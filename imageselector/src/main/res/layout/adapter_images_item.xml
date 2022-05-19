@@ -27,9 +27,32 @@
         android:layout_gravity="right"
         android:paddingTop="8dp"
         android:paddingRight="8dp"
+        android:visibility="gone"
         android:paddingLeft="10dp"
         android:paddingBottom="10dp"
         android:src="@drawable/icon_image_un_select"/>
+
+    <TextView
+        android:id="@+id/tvCheck2"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="right"
+        android:textColor="#fff"
+        android:gravity="center" />
+
+
+    <TextView
+        android:id="@+id/tvCheck"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_gravity="right"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="10dp"
+        android:textColor="#fff"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:background="@drawable/rc_picture_check_selector_red" />
+
 
     <ImageView
         android:id="@+id/iv_gif"

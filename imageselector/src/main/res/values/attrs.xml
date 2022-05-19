@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <attr name="picture.checked.style2" format="reference" />
+
+    <style name="TextStyle.Alignment" parent="@android:style/Widget.TextView">
+        <item name="android:textDirection">locale</item>
+    </style>
+</resources>

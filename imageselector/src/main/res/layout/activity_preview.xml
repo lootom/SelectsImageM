@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
+    android:background="#B51E1E1E"
     android:layout_height="match_parent">
 
     <com.donkingliang.imageselector.view.MyViewPager
         android:id="@+id/vp_image"
+        android:layout_above="@+id/preview_horlist"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#272828" />
+        android:background="#B51E1E1E" />
 
     <RelativeLayout
         android:id="@+id/rl_top_bar"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:background="#373c3d"
+        android:layout_height="55dp"
+        android:background="#B51E1E1E"
         android:clickable="true"
         android:orientation="vertical">
 
@@ -29,17 +31,17 @@
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 android:scaleType="centerInside"
-                android:src="@drawable/icon_back" />
+                android:src="@mipmap/icon_select_back1" />
 
         </FrameLayout>
 
-        <View
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:layout_marginBottom="12dp"
-            android:layout_marginTop="12dp"
-            android:layout_toRightOf="@+id/btn_back"
-            android:background="@android:color/black" />
+        <!--        <View-->
+        <!--            android:layout_width="1dp"-->
+        <!--            android:layout_height="match_parent"-->
+        <!--            android:layout_marginBottom="12dp"-->
+        <!--            android:layout_marginTop="12dp"-->
+        <!--            android:layout_toRightOf="@+id/btn_back"-->
+        <!--            android:background="@android:color/black" />-->
 
         <TextView
             android:id="@+id/tv_indicator"
@@ -51,31 +53,19 @@
             android:textColor="@android:color/white"
             android:textSize="18sp" />
 
-        <FrameLayout
-            android:id="@+id/btn_confirm"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <TextView
+            android:id="@+id/tv_select"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:layout_marginRight="16dp"
-            android:foreground="@drawable/btn_foreground_selector">
-
-            <TextView
-                android:id="@+id/tv_confirm"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/btn_green_shape"
-                android:gravity="center"
-                android:minWidth="50dp"
-                android:paddingBottom="5dp"
-                android:paddingLeft="5dp"
-                android:paddingRight="5dp"
-                android:paddingTop="5dp"
-                android:text="@string/confirm"
-                android:textColor="@android:color/white"
-                android:textSize="14sp" />
-
-        </FrameLayout>
+            android:layout_gravity="right"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="20dp"
+            android:background="@drawable/rc_picture_check_selector_red"
+            android:gravity="center"
+            android:textColor="#fff"
+            android:textStyle="bold" />
 
     </RelativeLayout>
 
@@ -84,30 +74,61 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_alignParentBottom="true"
-        android:background="#373c3d"
+        android:background="#000000"
         android:clickable="true">
 
         <TextView
-            android:id="@+id/tv_select"
+            android:id="@+id/ap_clicps"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_alignParentRight="true"
-            android:drawableLeft="@drawable/icon_image_un_select"
-            android:drawablePadding="10dp"
-            android:gravity="center"
-            android:paddingLeft="12dp"
-            android:paddingRight="12dp"
-            android:text="@string/select"
-            android:textColor="@android:color/white"
-            android:textSize="18sp" />
+            android:layout_height="wrap_content"
+            android:text="裁切"
+            android:visibility="gone"
+            android:padding="10dp"
+            android:textColor="#ffffffff"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:textSize="16sp"
+            />
 
-        <View
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:layout_marginBottom="15dp"
-            android:layout_marginTop="15dp"
-            android:layout_toLeftOf="@+id/tv_select"
-            android:background="@android:color/black" />
+        <FrameLayout
+            android:id="@+id/btn_confirm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="16dp">
+
+            <TextView
+                android:id="@+id/tv_confirm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/shape_order_text"
+                android:gravity="center"
+                android:minWidth="50dp"
+                android:paddingLeft="13dp"
+                android:paddingTop="6dp"
+                android:paddingRight="13dp"
+                android:paddingBottom="6dp"
+                android:text="完成"
+                android:textColor="@android:color/white"
+                android:textSize="14sp" />
+
+        </FrameLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/preview_horlist"
+        android:layout_above="@+id/rl_bottom_bar"
+        android:layout_width="match_parent"
+        android:visibility="gone"
+        android:layout_marginBottom="10dp"
+        android:layout_height="80dp">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/preview_horlist1"
+            android:layout_width="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_height="80dp"/>
 
     </RelativeLayout>
 

@@ -165,6 +165,11 @@ public class ImagePagerAdapter extends PagerAdapter {
         }
     }
 
+    @Override
+    public int getItemPosition(@NonNull Object object) {
+        return POSITION_NONE;
+    }
+
     public void setOnItemClickListener(OnItemClickListener l) {
         mListener = l;
     }

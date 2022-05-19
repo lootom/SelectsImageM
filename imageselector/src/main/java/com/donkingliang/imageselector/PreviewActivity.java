@@ -11,6 +11,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,25 +24,39 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
+import de.greenrobot.event.EventBus;
+import de.greenrobot.event.Subscribe;
+import de.greenrobot.event.ThreadMode;
 
+import com.donkingliang.imageselector.adapter.CenterLayoutManager;
 import com.donkingliang.imageselector.adapter.ImagePagerAdapter;
+import com.donkingliang.imageselector.adapter.PicPreviewSelectAdapter;
 import com.donkingliang.imageselector.entry.Image;
+import com.donkingliang.imageselector.entry.MessageBean.ActivityResultBean;
+import com.donkingliang.imageselector.imaging.IMGEditActivity;
 import com.donkingliang.imageselector.utils.ImageSelector;
 import com.donkingliang.imageselector.view.MyViewPager;
 import com.shuyu.gsyvideoplayer.GSYVideoManager;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import static android.animation.ObjectAnimator.ofFloat;
+import static com.donkingliang.imageselector.ImageSelectorActivity.createCoverUri;
 
 public class PreviewActivity extends AppCompatActivity {
 
+    private RelativeLayout preview_horlist;
+    private RecyclerView preview_horlist1;
     private MyViewPager vpImage;
     private TextView tvIndicator;
     private TextView tvConfirm;
     private FrameLayout btnConfirm;
-    private TextView tvSelect;
+    private TextView tvSelect,ap_clicps;
     private RelativeLayout rlTopBar;
     private RelativeLayout rlBottomBar;
 
@@ -58,20 +73,43 @@ public class PreviewActivity extends AppCompatActivity {
     private boolean isSingle;
     private int mMaxCount;
 
+    private PicPreviewSelectAdapter adapter_hor;
+    private CenterLayoutManager linearLayoutManager;
+
     private BitmapDrawable mSelectDrawable;
     private BitmapDrawable mUnSelectDrawable;
     private int currentPosition; // viewPager 当前位置
+    private int isSelectList;
 
     public static void openActivity(Activity activity, ArrayList<Image> images,
                                     ArrayList<Image> selectImages, boolean isSingle,
-                                    int maxSelectCount, int position) {
+                                    int maxSelectCount, int position,int isSelectList) {
         tempImages = images;
         tempSelectImages = selectImages;
         Intent intent = new Intent(activity, PreviewActivity.class);
         intent.putExtra(ImageSelector.MAX_SELECT_COUNT, maxSelectCount);
         intent.putExtra(ImageSelector.IS_SINGLE, isSingle);
+        intent.putExtra("isSelectList",isSelectList);
         intent.putExtra(ImageSelector.POSITION, position);
         activity.startActivityForResult(intent, ImageSelector.RESULT_CODE);
+    }
+
+    private void initBars() {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            Window window = getWindow();
+//            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+//            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+//            window.setStatusBarColor(Color.TRANSPARENT);
+//            window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+//                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+//
+//        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+//            Window window = getWindow();
+//            window.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,  WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+//        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setNavigationBarColor(Color.parseColor("#111111"));
+        }
     }
 
     @Override
@@ -88,7 +126,7 @@ public class PreviewActivity extends AppCompatActivity {
         Intent intent = getIntent();
         mMaxCount = intent.getIntExtra(ImageSelector.MAX_SELECT_COUNT, 0);
         isSingle = intent.getBooleanExtra(ImageSelector.IS_SINGLE, false);
-
+        isSelectList = intent.getIntExtra("isSelectList", 0);
         Resources resources = getResources();
         Bitmap selectBitmap = BitmapFactory.decodeResource(resources, R.drawable.icon_image_select);
         mSelectDrawable = new BitmapDrawable(resources, selectBitmap);
@@ -105,21 +143,110 @@ public class PreviewActivity extends AppCompatActivity {
 
         tvIndicator.setText(1 + "/" + mImages.size());
         changeSelect(mImages.get(0));
+        posiionts = intent.getIntExtra(ImageSelector.POSITION, 0);
         vpImage.setCurrentItem(intent.getIntExtra(ImageSelector.POSITION, 0));
+        EventBus.getDefault().register(this);
+        initBars();
     }
 
+    @Subscribe(threadMode = ThreadMode.MainThread)
+    public void getClips(ActivityResultBean bean){
+        if(bean.getRequestCode() == 1 && bean.getResultCode() == 1){
+            Image mm ;
+            mm = new Image(bean.getPhotoPath(),0,"","");
+            Log.v("--->OkHttp", "2s:"+mm.getPath());
+            mImages.set(lastPostion,mm);
+            mSelectImages.set(lastPostion,mm);
+            adapter.notifyDataSetChanged();
+            adapter_hor.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
+
+
+    protected int lastPostion;
+    private Uri coverUri;
+    private int posiionts;
     private void initView() {
         vpImage = (MyViewPager) findViewById(R.id.vp_image);
         tvIndicator = (TextView) findViewById(R.id.tv_indicator);
         tvConfirm = (TextView) findViewById(R.id.tv_confirm);
         btnConfirm = (FrameLayout) findViewById(R.id.btn_confirm);
         tvSelect = (TextView) findViewById(R.id.tv_select);
+        ap_clicps = (TextView) findViewById(R.id.ap_clicps);
         rlTopBar = (RelativeLayout) findViewById(R.id.rl_top_bar);
         rlBottomBar = (RelativeLayout) findViewById(R.id.rl_bottom_bar);
+        preview_horlist = (RelativeLayout) findViewById(R.id.preview_horlist);
+        preview_horlist1 = (RecyclerView) findViewById(R.id.preview_horlist1);
 
         RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) rlTopBar.getLayoutParams();
         lp.topMargin = getStatusBarHeight(this);
         rlTopBar.setLayoutParams(lp);
+
+        if(isSelectList == 1){
+            ap_clicps.setVisibility(View.VISIBLE);
+            tvSelect.setVisibility(View.GONE);
+            preview_horlist.setVisibility(View.VISIBLE);
+            linearLayoutManager = new CenterLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+
+            preview_horlist1.setLayoutManager(linearLayoutManager);
+            adapter_hor = new PicPreviewSelectAdapter(this,mImages);
+            preview_horlist1.setAdapter(adapter_hor);
+
+            adapter_hor.setClickPosition(0);
+            adapter_hor.setOnPicClickListener(new PicPreviewSelectAdapter.OnPicItemClickListener() {
+                @Override
+                public void OnPicItemClickListener(int position) {
+                    vpImage.setCurrentItem(position, true);
+                    if (lastPostion != position) {
+                        linearLayoutManager.smoothScrollToPosition(preview_horlist1, new RecyclerView.State(),
+                                lastPostion, position);
+                        lastPostion = position;
+                    }
+                }
+            });
+            linearLayoutManager.smoothScrollToPosition(preview_horlist1, new RecyclerView.State(),
+                    0, posiionts);
+            lastPostion = posiionts;
+
+
+            ap_clicps.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (null != coverUri) {
+                        coverUri = null;
+                    }
+                    coverUri = createCoverUri(PreviewActivity.this, ""+System.currentTimeMillis());
+                    Intent intent_p = new Intent(PreviewActivity.this, IMGEditActivity.class);
+                    try {
+                        Uri uri;
+//                if (SdkVersionUtils.checkedAndroid_Q()) {
+////                       uri =   Uri.parse(images.get(lastPostion).getPath());
+//                    uri = Uri.fromFile(new File(PictureFileUtils.getPath(PictureSelectorActivity.this, Uri.parse(images.get(0).getPath()))));
+//                } else {
+                        uri = Uri.fromFile(new File(mSelectImages.get(lastPostion).getPath()));
+//                }
+                        intent_p.putExtra(IMGEditActivity.EXTRA_IMAGE_URI, uri);
+                        intent_p.putExtra(IMGEditActivity.EXTRA_IMAGE_SAVE_PATH, coverUri.getPath());
+                        startActivity(intent_p);
+                    } catch (Exception e) {
+                        Log.v("===oks",""+e);
+                        e.printStackTrace();
+                    }
+                }
+            });
+
+        }else {
+            ap_clicps.setVisibility(View.GONE);
+            tvSelect.setVisibility(View.VISIBLE);
+            preview_horlist.setVisibility(View.GONE);
+        }
+
     }
 
     private void initListener() {
@@ -144,11 +271,12 @@ public class PreviewActivity extends AppCompatActivity {
         });
     }
 
+    private  ImagePagerAdapter adapter;
     /**
      * 初始化ViewPager
      */
     private void initViewPager() {
-        final ImagePagerAdapter adapter = new ImagePagerAdapter(this, mImages);
+        adapter = new ImagePagerAdapter(this, mImages);
         vpImage.setAdapter(adapter);
         vpImage.setOffscreenPageLimit(0);//关闭预加载
         adapter.setOnItemClickListener(new ImagePagerAdapter.OnItemClickListener() {
@@ -176,6 +304,15 @@ public class PreviewActivity extends AppCompatActivity {
                     adapter.releaseVideo();
                 }
                 currentPosition = position;
+
+                if(isSelectList == 1){
+                    adapter_hor.setClickPosition(position);
+                    if (lastPostion != position) {
+                        linearLayoutManager.smoothScrollToPosition(preview_horlist1, new RecyclerView.State(),
+                                lastPostion, position);
+                        lastPostion = position;
+                    }
+                }
             }
             @Override
             public void onPageScrollStateChanged(int state) {
@@ -299,8 +436,18 @@ public class PreviewActivity extends AppCompatActivity {
     }
 
     private void changeSelect(Image image) {
-        tvSelect.setCompoundDrawables(mSelectImages.contains(image) ?
-                mSelectDrawable : mUnSelectDrawable, null, null, null);
+
+        tvSelect.setText("");
+//        tvSelect.setCompoundDrawables(mSelectImages.contains(image) ?
+//                mSelectDrawable : mUnSelectDrawable, null, null, null);
+        tvSelect.setBackgroundResource(R.drawable.rc_picture_check_normal);
+        for (int i = 0; i < mSelectImages.size(); i++) {
+            String media = mSelectImages.get(i).getPath();
+            if (media.equals(image.getPath())) {
+                tvSelect.setText(String.valueOf(i+1));
+                tvSelect.setBackgroundResource(R.drawable.rc_picture_check_selected_red);
+            }
+        }
         setSelectImageCount(mSelectImages.size());
     }
 
