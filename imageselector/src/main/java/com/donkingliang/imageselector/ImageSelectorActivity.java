@@ -164,7 +164,6 @@ public class ImageSelectorActivity extends AppCompatActivity {
     /**
      * 启动图片选择器
      *
-     * @param fragment
      * @param requestCode
      * @param isSingle       是否单选
      * @param onlyImage      是否只要图片（不要视频）
@@ -511,9 +510,9 @@ public class ImageSelectorActivity extends AppCompatActivity {
             tvFolderName.setText(folder.getName());
 //            rvImage.scrollToPosition(0);
             ArrayList<Image> images = folder.getImages();
-            Collections.reverse(images);
             mAdapter.refresh(images, folder.isUseCamera());
             rvImage.getLayoutManager().scrollToPosition(images.size()-1);
+            images = null;
         }
     }
 
@@ -902,6 +901,10 @@ public class ImageSelectorActivity extends AppCompatActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        for (int i = 0; i < mFolders.size(); i++) {
+                            ArrayList<Image> images = mFolders.get(i).getImages();
+                            Collections.reverse(images);
+                        }
                         if (mFolders != null && !mFolders.isEmpty()) {
                             initFolderList();
                             mFolders.get(0).setUseCamera(useCamera);
